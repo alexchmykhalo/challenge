@@ -1,0 +1,30 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "MacRelease",
+            "displayName": "Clang x86_64-apple-darwin",
+            "description": "Using homebrew clang (at /usr/local/opt/llvm)",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
+                "CMAKE_C_COMPILER": "/usr/local/Cellar/llvm/17.0.6_1/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/local/Cellar/llvm/17.0.6_1/bin/clang++",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "MacRelease",
+            "configurePreset": "MacRelease"
+        }
+    ],
+    "testPresets": []
+}
