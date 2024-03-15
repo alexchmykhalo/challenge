@@ -1,0 +1,8 @@
+# Python venv
+env
+
+# VSCode settings
+.vscode
+
+# Generated Build Files
+build
