@@ -1,0 +1,61 @@
+{
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
+    "include": [
+        "Sources/CMakePresets.json"
+    ],
+    "configurePresets": [
+        {
+            "name": "MacDebug",
+            "displayName": "Clang x86_64-apple-darwin (Debug)",
+            "description": "Using homebrew clang (at /usr/local/opt/llvm)",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
+                "CMAKE_C_COMPILER": "/usr/local/Cellar/llvm/17.0.6_1/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/local/Cellar/llvm/17.0.6_1/bin/clang++",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_TESTING": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "MacDebug",
+            "configurePreset": "MacDebug"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "All",
+            "hidden": true,
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "default",
+                "shortProgress": true
+            },
+            "execution": {
+                "noTestsAction": "error", 
+                "stopOnFailure": true,
+                "jobs": 6
+            }
+        },
+        {
+            "name": "MacAll",
+            "displayName": "Test All",
+            "description": "Run all tests (Unit Tests)",
+            "configurePreset": "MacDebug",
+            "inherits": ["All"],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        }
+    ]
+}
