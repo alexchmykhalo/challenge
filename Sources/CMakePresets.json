@@ -18,12 +18,30 @@
                 "CMAKE_CXX_COMPILER": "/usr/local/Cellar/llvm/17.0.6_1/bin/clang++",
                 "CMAKE_BUILD_TYPE": "Release"
             }
+        },
+        {
+            "name": "LinuxRelease",
+            "displayName": "Clang x86_64 (Linux)",
+            "description": "Using clang",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Ninja",
+            "installDir": "/opt",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
         {
             "name": "MacRelease",
             "configurePreset": "MacRelease"
+        },
+        {
+            "name": "LinuxRelease",
+            "configurePreset": "LinuxRelease"
         }
     ],
     "testPresets": []
