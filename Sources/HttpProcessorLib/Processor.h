@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 
 #include "HttpRequest.h"
 
@@ -19,7 +20,9 @@ namespace HttpProcessor
 
     private:
         std::unordered_map<std::string, std::string> mPendingRequests;
-        std::vector<HttpRequest> mRequests;
+
+        std::mutex mRequestListMutex;
+        std::vector<HttpRequest> mRequestList;
     };
 } // namespace HttpProcessor
 #endif // HTTP_PROCESSOR_H

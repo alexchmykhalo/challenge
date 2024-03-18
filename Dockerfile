@@ -14,5 +14,5 @@ RUN cd /home/cpp-challenge-24/Sources && \
     cmake --build --preset LinuxRelease && \
     cmake --build --preset LinuxRelease --target install
 
-ENTRYPOINT ["/opt/processor"]
+ENTRYPOINT ["/bin/sh", "-c", "/opt/generator | (/opt/processor -o /home/test)"]
 

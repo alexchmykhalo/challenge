@@ -68,7 +68,7 @@ namespace HttpProcessor
                 if (const auto id = HttpProcessor::traceId(line))
                 {
                     const auto it = mPendingRequests.find(*id);
-                    mRequests.push_back(HttpRequest{*id, responceCode, (*it).second});
+                    mRequestList.push_back(HttpRequest{*id, responceCode, (*it).second});
                     mPendingRequests.erase(it);
                     state = ProcessorState::ReadyForParse;
                 }
@@ -87,6 +87,6 @@ namespace HttpProcessor
 
     std::vector<HttpRequest> Processor::takeCompletedRequests()
     {
-        return std::move(mRequests);
+        return std::move(mRequestList);
     }
 } // namespace HttpProcessor
