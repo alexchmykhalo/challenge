@@ -1,6 +1,7 @@
 #include "Processor.h"
 
 #include <istream>
+#include <chrono>
 
 #include "HttpProcessorUtils.h"
 
@@ -12,7 +13,15 @@ namespace
         GotHttpRequest,
         GotHttpResponce
     };
-}
+
+    uint32_t generateTimestamp()
+    {
+        auto now = std::chrono::system_clock::now();
+        auto duration = now.time_since_epoch();
+        long int timestamp_seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+        return timestamp_seconds;
+    }
+} // namespace
 
 namespace HttpProcessor
 {
@@ -57,7 +66,11 @@ namespace HttpProcessor
             {
                 if (const auto id = HttpProcessor::traceId(line))
                 {
-                    mPendingRequests.emplace(std::make_pair(*id, requestPath));
+                    const auto pendingRequest = std::make_pair(requestPath, generateTimestamp());
+
+                    std::scoped_lock pendingRequestListMutex(mPendingRequestListMutex);
+                    mPendingRequestList.emplace(std::make_pair(*id, pendingRequest));
+
                     state = ProcessorState::ReadyForParse;
                 }
 
@@ -67,9 +80,17 @@ namespace HttpProcessor
             {
                 if (const auto id = HttpProcessor::traceId(line))
                 {
-                    const auto it = mPendingRequests.find(*id);
-                    mRequestList.push_back(HttpRequest{*id, responceCode, (*it).second});
-                    mPendingRequests.erase(it);
+                    std::scoped_lock pendingRequestListMutex(mPendingRequestListMutex);
+                    const auto it = mPendingRequestList.find(*id);
+
+                    if (it != mPendingRequestList.end())
+                    {
+                        std::scoped_lock requestListMutex(mRequestListMutex);
+                        mRequestList.push_back(HttpRequest{*id, responceCode, (*it).second.first});
+
+                        mPendingRequestList.erase(it);
+                    }
+
                     state = ProcessorState::ReadyForParse;
                 }
                 break;
@@ -82,11 +103,33 @@ namespace HttpProcessor
 
     int Processor::pendingRequests() const
     {
-        return mPendingRequests.size();
+        return mPendingRequestList.size();
+    }
+
+    void Processor::cleanupPendingRequests(int timeout)
+    {
+        const auto timeoutTimestamp = generateTimestamp() - timeout;
+
+        std::scoped_lock lock(mPendingRequestListMutex);
+        auto it = mPendingRequestList.begin();
+        while (it != mPendingRequestList.end())
+        {
+            const auto timestamp = (*it).second.second;
+            if (timestamp <= timeoutTimestamp)
+            {
+                // According to https://en.cppreference.com/w/cpp/container/unordered_map/erase
+                // only iterators to the erased elements are invalidated
+                it = mPendingRequestList.erase(it);
+                continue;
+            }
+
+            it++;
+        }
     }
 
     std::vector<HttpRequest> Processor::takeCompletedRequests()
     {
+        std::scoped_lock lock(mRequestListMutex);
         return std::move(mRequestList);
     }
 } // namespace HttpProcessor

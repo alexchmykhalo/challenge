@@ -24,6 +24,8 @@ void writeFileWorker(HttpProcessor::Processor* processor,
 
     while (true)
     {
+        std::this_thread::sleep_for(timeout);
+
         const auto result = processor->takeCompletedRequests();
         std::cout << "Writing " << result.size() << " requests, " << processor->pendingRequests() << " pending"
                   << std::endl;
@@ -34,7 +36,8 @@ void writeFileWorker(HttpProcessor::Processor* processor,
         }
         fileStream.flush();
 
-        std::this_thread::sleep_for(timeout);
+        // Clean up requests without responce that are waiting
+        processor->cleanupPendingRequests(timeout.count());
     }
 }
 

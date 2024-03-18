@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include <mutex>
+#include <utility>
 
 #include "HttpRequest.h"
 
@@ -14,12 +15,16 @@ namespace HttpProcessor
     class Processor
     {
     public:
+        using PendingRequest = std::pair<std::string, uint32_t>;
+
         void run(std::istream& stream);
         int pendingRequests() const;
         std::vector<HttpRequest> takeCompletedRequests();
+        void cleanupPendingRequests(int timeout);
 
     private:
-        std::unordered_map<std::string, std::string> mPendingRequests;
+        std::mutex mPendingRequestListMutex;
+        std::unordered_map<std::string, PendingRequest> mPendingRequestList;
 
         std::mutex mRequestListMutex;
         std::vector<HttpRequest> mRequestList;
