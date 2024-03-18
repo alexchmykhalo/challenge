@@ -2,8 +2,8 @@ set(TARGET_NAME "HttpProcessorLib")
 add_library(${TARGET_NAME} OBJECT)
 
 target_sources(${TARGET_NAME} PRIVATE
-    HttpProcessorUtils.h
     HttpProcessorUtils.cpp
+    Processor.cpp
 )
 
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
